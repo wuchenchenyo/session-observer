@@ -396,6 +396,7 @@ export function prepareConversationEvents(events) {
     .filter((event) => {
       if (event.callType === "Token_Usage") return false;
       if (event.callType === "Raw") return false;
+      if (event.callType === "System") return false;
       if (["Prompt", "User", "Agent", "Thinking"].includes(event.callType)) {
         return Boolean(event.content && !isInternalContent(event.content));
       }

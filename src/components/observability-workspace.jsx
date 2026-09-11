@@ -1112,6 +1112,9 @@ function OverviewHealthBand({ runtime, sources, index, generatedAt, health }) {
   const sourceRows = [
     { label: "Codex 数据", source: sources?.codex },
     { label: "Claude 数据", source: sources?.claude },
+    ...(sources?.grok ? [{ label: "Grok 数据", source: sources.grok }] : []),
+    ...(sources?.antigravity ? [{ label: "Antigravity 数据", source: sources.antigravity }] : []),
+    ...(sources?.antigravityCli ? [{ label: "Antigravity CLI", source: sources.antigravityCli }] : []),
   ];
   const cachedFiles = finiteToken(index?.cachedFiles);
   const reusedFiles = finiteToken(index?.reusedFiles);
@@ -1953,11 +1956,15 @@ function SystemReadinessPanel({ runtime, sources, index, generatedAt, health }) 
   const heapShare = percentValue(heapUsed, heapTotal);
   const cachedFiles = finiteToken(index?.cachedFiles);
   const reusedFiles = finiteToken(index?.reusedFiles);
-  const sourceFileCount = finiteToken(sources?.codex?.files) + finiteToken(sources?.claude?.files);
+  const sourceFileCount = ["codex", "claude", "grok", "antigravity", "antigravityCli"]
+    .reduce((total, key) => total + finiteToken(sources?.[key]?.files), 0);
   const dataDelay = timestampAgeMs(health?.lastEventAt, generatedAt);
   const sourceRows = [
     ["Codex", sources?.codex],
     ["Claude Code", sources?.claude],
+    ...(sources?.grok ? [["Grok Build", sources.grok]] : []),
+    ...(sources?.antigravity ? [["Antigravity", sources.antigravity]] : []),
+    ...(sources?.antigravityCli ? [["Antigravity CLI", sources.antigravityCli]] : []),
   ];
 
   return (

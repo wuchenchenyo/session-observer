@@ -450,6 +450,25 @@ describe("ObservabilityWorkspace", () => {
     cleanup();
   });
 
+  test("includes all provider sources in monitored file totals", () => {
+    const sources = {
+      ...payload.sources,
+      grok: { ...payload.sources.codex, files: 3 },
+      antigravity: { ...payload.sources.codex, files: 2 },
+      antigravityCli: { ...payload.sources.codex, files: 1 },
+    };
+    render(
+      <MantineProvider>
+        <ObservabilityWorkspace payload={{ ...payload, sources }} view="overview" onRefresh={() => {}} />
+      </MantineProvider>,
+    );
+    expect(screen.getByText("26 个会话文件")).toBeInTheDocument();
+    const readiness = screen.getByText("26 个会话文件").closest(".v2-system-readiness");
+    for (const label of ["Grok Build", "Antigravity", "Antigravity CLI"]) {
+      expect(within(readiness).getByText(label)).toBeInTheDocument();
+    }
+  });
+
   test("renders the V2 overview pulse, activity, runtime, workspace, and tool panels", () => {
     render(
       <MantineProvider>

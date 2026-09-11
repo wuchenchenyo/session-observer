@@ -8,6 +8,7 @@
  */
 const fs = require("fs");
 const config = require("./config");
+const { providerContext } = require("./provider-context");
 const ObserverCore = require("../shared/observer-core");
 const fsScanner = require("./fs-scanner");
 const { attachEventLocator, makeIndexedEvent } = require("./index-manager");
@@ -185,6 +186,7 @@ function createParserContext(record, sourceType, hintIndexes, options = {}) {
     sessionTitle: hint?.sessionTitle || hint?.title || hint?.fallbackTitle || "",
     compactContent: Boolean(options.compactContent),
     contentLimit: Number(options.contentLimit) || 800,
+    ...providerContext(record.file),
   };
 }
 
@@ -243,10 +245,15 @@ function makeTruncatedLineEvent(line, context, locator = {}) {
     callType = "Agent";
     extra = "agent_message";
     content = `Large agent message omitted from event stream (${omitted}).`;
+  } else if (context.sourceType === "grok" && ["user", "assistant", "tool_result"].includes(outerType)) {
+    callType = { user: "Prompt", assistant: "Agent", tool_result: "Tool_Result" }[outerType];
+  } else if (context.sourceType === "antigravity" && ["USER_INPUT", "PLANNER_RESPONSE"].includes(outerType)) {
+    callType = outerType === "USER_INPUT" ? "Prompt" : "Agent";
   }
 
   return {
-    time: extractJsonStringField(line, "timestamp"),
+    time: extractJsonStringField(line, "timestamp") || extractJsonStringField(line, "created_at") || context.time || "",
+    timeSource: context.time ? "session" : "record",
     sessionId: context.sessionId || "unknown",
     model: context.model || "unknown",
     turnId: extractJsonStringField(line, "turn_id") || extractJsonStringField(line, "turnId"),
@@ -348,7 +355,11 @@ function queryRecentEvents(options = {}) {
         countLines: false,
         maxLineBytes: Number(options.maxParseLineBytes) || config.EVENT_STREAM_MAX_PARSE_LINE_BYTES,
       })
-      : fsScanner.forEachCompleteJsonlLine(record.file, onLine);
+      : fsScanner.forEachCompleteJsonlLine(record.file, onLine, {
+        maxLineBytes: compactContent
+          ? Number(options.maxParseLineBytes) || config.EVENT_STREAM_MAX_PARSE_LINE_BYTES
+          : config.EVENT_DETAIL_MAX_LINE_BYTES,
+      });
 
     candidates.push(...fileEvents);
     sortEvents(candidates, order);

@@ -1,5 +1,6 @@
 import { startTransition, useCallback, useRef, useState } from "react";
 import { apiClient } from "../api/client";
+import { compareEventOrder } from "../lib/event-order";
 import { hydrateDialogueEvents } from "../lib/conversation-hydration";
 import {
   CONVERSATION_PAGE_LIMIT,
@@ -62,7 +63,7 @@ export function useConversationData({ dataSource, localEvents, notify }) {
     if (dataSource !== "server") {
       const allEvents = localEvents
         .filter((event) => event.sessionId === session.sessionId)
-        .sort((left, right) => String(left.time).localeCompare(String(right.time)));
+        .sort(compareEventOrder);
       conversationLocalSource.current = allEvents;
       commitConversationChunk(allEvents, allEvents.length, { replace: true });
       setConversationLoading(false);

@@ -7,6 +7,19 @@ import {
 } from "../activity-models";
 
 describe("activity models", () => {
+  test("keeps Grok messages in file order when a reverse page shares a session timestamp", () => {
+    const base = { time: "2026-09-11T00:00:00Z", timeSource: "session", sourceFile: "/synthetic/chat_history.jsonl", sessionId: "grok:demo", sourceType: "grok" };
+    const runs = buildActivityRuns([
+      { ...base, callType: "Agent", sourceOffset: 300, content: "Finished" },
+      { ...base, callType: "Tool_Result", sourceOffset: 200, toolName: "sample", content: "Result" },
+      { ...base, callType: "Tool_Call", sourceOffset: 100, toolName: "sample", content: "tool=sample" },
+      { ...base, callType: "Prompt", sourceOffset: 0, content: "Do the sample" },
+    ]);
+    expect(runs).toHaveLength(1);
+    expect(runs[0].userPreview).toBe("Do the sample");
+    expect(runs[0].assistantPreview).toBe("Finished");
+    expect(runs[0].events.map((event) => event.callType)).toEqual(["Prompt", "Tool_Call", "Tool_Result", "Agent"]);
+  });
   const events = [
     {
       eventId: "prompt-1",

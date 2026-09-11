@@ -1,4 +1,5 @@
 const fs = require("fs");
+const { providerContext } = require("./provider-context");
 const path = require("path");
 const ObserverCore = require("../shared/observer-core");
 const fsScanner = require("./fs-scanner");
@@ -91,6 +92,7 @@ function createDialogueSearchIndex(options = {}) {
       cwd: "",
       sessionTitle: "",
       compactContent: false,
+      ...providerContext(record.file),
     };
     let rows = 0;
     connection.exec("BEGIN IMMEDIATE");

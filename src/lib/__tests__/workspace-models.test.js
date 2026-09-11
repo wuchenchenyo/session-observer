@@ -90,6 +90,17 @@ const sampleGroups = {
   ],
 };
 
+describe("new provider workspace labels", () => {
+  test.each([["grok", "Grok Build"], ["antigravity", "Antigravity"]])("labels %s grouping and scope", (sourceType, label) => {
+    const session = { ...sampleGroups["/Users/me/code/session-observer"][0], sourceType };
+    const sections = buildSessionSections({ [session.cwd]: [session] }, { groupBy: "platform" });
+    expect(sections).toHaveLength(1);
+    expect(sections[0].label).toBe(label);
+    expect(buildStreamScope({ sessions: [session], selectedSessionId: session.sessionId }).subtitle).toContain(label);
+    expect(buildStreamScope({ sessions: [], platform: sourceType }).subtitle).toContain(label);
+  });
+});
+
 describe("buildDashboardSummary", () => {
   test("prefers session aggregates for tokens, models, and platform totals when available", () => {
     expect(buildDashboardSummary({

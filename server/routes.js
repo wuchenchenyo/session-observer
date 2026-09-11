@@ -4,6 +4,7 @@
  * Dependencies are injected at initialization time to avoid circular imports.
  */
 const config = require("./config");
+const path = require("path");
 const fsScanner = require("./fs-scanner");
 const sessionOps = require("./session-ops");
 const sessionMeta = require("./session-meta");
@@ -402,6 +403,10 @@ function recalculateObservability() {
 function buildObservabilityPayload(records, summary, extra = {}) {
   const index = publicSourceState(records, summary);
   _deps.indexManager.trimHeapNow?.();
+  const providerStatus = (directory) => ({
+    ...sessionOps.directoryStatus(directory),
+    files: records.filter((record) => path.resolve(record.file).startsWith(`${path.resolve(directory)}${path.sep}`)).length,
+  });
 
   return {
     generatedAt: new Date().toISOString(),
@@ -418,6 +423,9 @@ function buildObservabilityPayload(records, summary, extra = {}) {
     sources: {
       codex: sessionOps.directoryStatus(config.SESSIONS_DIR),
       claude: sessionOps.directoryStatus(config.CLAUDE_PROJECTS_DIR),
+      grok: providerStatus(config.GROK_SESSIONS_DIR),
+      antigravity: providerStatus(config.ANTIGRAVITY_BRAIN_DIR),
+      antigravityCli: providerStatus(config.ANTIGRAVITY_CLI_BRAIN_DIR),
       adapters: listSourceAdapters(),
       dialogueSearch: _deps.dialogueSearchIndex?.state?.() || { enabled: false, mode: "scan" },
     },

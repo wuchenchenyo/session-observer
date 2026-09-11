@@ -44,7 +44,7 @@ export function EventDrawer({ event, opened, onClose, onCopy, onCopySessionId, o
           <div className="event-detail-grid">
             <div>
               <Text className="event-detail-label">时间</Text>
-              <Text className="event-detail-value">{formatFullDateTime(event.time)}</Text>
+              <Text className="event-detail-value">{formatFullDateTime(event.time)}{event.timeSource === "session" ? "（会话时间；未记录逐条时间）" : ""}</Text>
             </div>
             <div>
               <Text className="event-detail-label">会话</Text>

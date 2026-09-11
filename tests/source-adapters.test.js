@@ -10,7 +10,7 @@ const {
 test("source adapters describe supported local coding agent sources", () => {
   const adapters = listSourceAdapters();
 
-  assert.deepEqual(adapters.map((adapter) => adapter.key), ["codex", "claude"]);
+  assert.deepEqual(adapters.map((adapter) => adapter.key), ["grok", "antigravity", "codex", "claude"]);
   assert.equal(getSourceAdapter("codex").label, "Codex");
   assert.equal(getSourceAdapter("claude").sessionGlob, "~/.claude/projects/**/*.jsonl");
 });

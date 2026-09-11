@@ -11,6 +11,24 @@
 
   const SOURCE_ADAPTERS = [
     {
+      key: "grok",
+      label: "Grok Build",
+      sessionGlob: "~/.grok/sessions/**/{chat_history,events}.jsonl",
+      metadataSources: ["summary.json", "usage.json"],
+      parserKey: "parseGrokLineToEvent",
+      pathMarkers: ["/.grok/sessions/"],
+      capabilities: ["events", "conversation", "tokens", "export"],
+    },
+    {
+      key: "antigravity",
+      label: "Antigravity",
+      sessionGlob: "~/.gemini/{antigravity,antigravity-cli}/brain/*/.system_generated/logs/transcript.jsonl",
+      metadataSources: [],
+      parserKey: "parseAntigravityLineToEvent",
+      pathMarkers: ["/.gemini/antigravity/brain/", "/.gemini/antigravity-cli/brain/"],
+      capabilities: ["events", "conversation", "export"],
+    },
+    {
       key: "codex",
       label: "Codex",
       sessionGlob: "~/.codex/sessions/**/*.jsonl",
@@ -30,7 +48,7 @@
     },
   ];
 
-  const DEFAULT_ADAPTER = SOURCE_ADAPTERS[0];
+  const DEFAULT_ADAPTER = SOURCE_ADAPTERS.find((adapter) => adapter.key === "codex");
 
   function cloneAdapter(adapter) {
     return {

@@ -57,7 +57,7 @@ test("makeIndexedEvent stores a compact event without duplicate or empty fields"
   assert.equal(Object.hasOwn(indexed, "callId"), false);
   assert.equal(Object.hasOwn(indexed, "toolName"), false);
   assert.equal(Object.hasOwn(indexed, "lineEventIndex"), false);
-  assert.deepEqual(indexed.tokenUsage, { input: 100, total: 100 });
+  assert.deepEqual(indexed.tokenUsage, { input: 100, output: 0, total: 100, cacheReadInput: 0, cacheCreationInput: 0 });
 });
 
 test("makeIndexedEvent preserves source truncation metadata for detail hydration", () => {

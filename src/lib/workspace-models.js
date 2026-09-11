@@ -18,6 +18,8 @@ import ObserverCore from "../../shared/observer-core.js";
 const PLATFORM_LABELS = {
   codex: "Codex",
   claude: "Claude Code",
+  grok: "Grok Build",
+  antigravity: "Antigravity",
 };
 
 const {

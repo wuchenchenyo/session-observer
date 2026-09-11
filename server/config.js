@@ -30,6 +30,9 @@ const SOURCE_ADAPTERS_FILE = process.env.OBSERVER_SOURCE_ADAPTERS_FILE || "";
 
 const SESSIONS_DIR = process.env.CODEX_SESSIONS_DIR || path.join(os.homedir(), ".codex", "sessions");
 const CLAUDE_PROJECTS_DIR = process.env.CLAUDE_PROJECTS_DIR || path.join(os.homedir(), ".claude", "projects");
+const GROK_SESSIONS_DIR = process.env.GROK_SESSIONS_DIR || path.join(os.homedir(), ".grok", "sessions");
+const ANTIGRAVITY_BRAIN_DIR = process.env.ANTIGRAVITY_BRAIN_DIR || path.join(os.homedir(), ".gemini", "antigravity", "brain");
+const ANTIGRAVITY_CLI_BRAIN_DIR = process.env.ANTIGRAVITY_CLI_BRAIN_DIR || path.join(os.homedir(), ".gemini", "antigravity-cli", "brain");
 const CLAUDE_SESSIONS_DIR = path.join(os.homedir(), ".claude", "sessions");
 const CODEX_SESSION_INDEX = path.join(os.homedir(), ".codex", "session_index.jsonl");
 const STATE_DB = process.env.CODEX_STATE_DB || path.join(os.homedir(), ".codex", "state_5.sqlite");
@@ -162,6 +165,9 @@ module.exports = {
   DIST_INDEX,
   SESSIONS_DIR,
   CLAUDE_PROJECTS_DIR,
+  GROK_SESSIONS_DIR,
+  ANTIGRAVITY_BRAIN_DIR,
+  ANTIGRAVITY_CLI_BRAIN_DIR,
   CLAUDE_SESSIONS_DIR,
   CODEX_SESSION_INDEX,
   STATE_DB,

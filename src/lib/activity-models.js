@@ -1,4 +1,5 @@
 import { readableDialogueContent, readableEventSummary } from "./event-display";
+import { compareEventOrder } from "./event-order";
 
 const USER_EVENT_TYPES = new Set(["Prompt", "User"]);
 const AGENT_EVENT_TYPES = new Set(["Agent"]);
@@ -13,14 +14,8 @@ function toFiniteNumber(value) {
   return Number.isFinite(number) ? number : 0;
 }
 
-function eventTimeValue(event) {
-  const value = Date.parse(event?.time || "");
-  return Number.isFinite(value) ? value : 0;
-}
-
 function compareEvents(left, right) {
-  const timeDelta = eventTimeValue(left.event) - eventTimeValue(right.event);
-  return timeDelta || left.index - right.index;
+  return compareEventOrder(left.event, right.event) || left.index - right.index;
 }
 
 function clipText(value, limit) {

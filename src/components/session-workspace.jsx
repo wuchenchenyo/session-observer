@@ -1061,6 +1061,7 @@ function SessionRow({
             radius="xl"
             color="gray"
             aria-label={`重命名 · ${shortSessionId(session.sessionId)}`}
+            disabled={["grok", "antigravity"].includes(session.sourceType)}
             onClick={() => onRename(session)}
           >
             <IconEdit size={16} />
@@ -1072,6 +1073,7 @@ function SessionRow({
             radius="xl"
             color="red"
             aria-label={`删除 · ${shortSessionId(session.sessionId)}`}
+            disabled={["grok", "antigravity"].includes(session.sourceType)}
             onClick={() => onDelete(session)}
           >
             <IconTrash size={16} />

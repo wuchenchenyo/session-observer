@@ -16,6 +16,8 @@ const { createCodexUsageService } = require("./server/codex-usage");
 const { createSessionAnnotationStore } = require("./server/session-annotations");
 const { createDialogueSearchIndex } = require("./server/dialogue-search-index");
 const { parseGenericLineToEvent } = require("./shared/generic-event-parser");
+const { parseGrokLineToEvent } = require("./shared/grok-event-parser");
+const { parseAntigravityLineToEvent } = require("./shared/antigravity-event-parser");
 require("./server/custom-sources").loadCustomSources();
 
 const {
@@ -39,6 +41,8 @@ const parsers = {
   parseCodexLineToEvent: parseCodexLineToEventCore,
   parseClaudeCodeLineToEvent: parseClaudeCodeLineToEventCore,
   parseGenericLineToEvent,
+  parseGrokLineToEvent,
+  parseAntigravityLineToEvent,
 };
 
 const summaryStore = createSummaryStore({

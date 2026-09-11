@@ -11,6 +11,7 @@ const ObserverCore = require("../shared/observer-core");
 const SessionInsights = require("../shared/session-insights");
 const tokenPricing = require("../shared/token-pricing");
 const config = require("./config");
+const { providerContext, providerForFile } = require("./provider-context");
 const fsScanner = require("./fs-scanner");
 const { compactLargeJsonlLine } = require("./jsonl-compact");
 const { makeTruncatedLineEvent } = require("./recent-events-reader");
@@ -945,6 +946,7 @@ function createParserContext(file) {
     sessionTitle: "",
     compactContent: true,
     contentLimit: 800,
+    ...providerContext(file),
   };
 }
 
@@ -1006,6 +1008,7 @@ function parseFileSummary(record, deps) {
 
 function canAppendFileSummary(cached, record) {
   return Boolean(
+    !providerForFile(record.file) &&
     cached &&
     cached.summary &&
     cached.context &&

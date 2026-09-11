@@ -28,6 +28,7 @@ import {
   formatCompactNumber,
   formatNumber,
   shortSessionId,
+  platformShortLabel,
 } from "../lib/formatters";
 import {
   eventDialogueRole,
@@ -116,7 +117,7 @@ function EventRow({ event, onOpenEvent, onOpenSessionDetail, searchQuery }) {
         <span className="event-row__rail" aria-hidden="true"><span className="event-row__dot" /></span>
         <div className="event-row__body">
           <div className="event-row__kicker">
-            <span className="event-row__platform">{event.sourceType === "codex" ? "CX" : "CC"}</span>
+            <span className="event-row__platform">{platformShortLabel(event.sourceType)}</span>
             {dialogueRole ? <span className="event-row__speaker">{dialogueRole === "user" ? "用户" : "Agent"}</span> : null}
             {!dialogueRole ? <span className="event-row__type">{callTypeLabel(event.callType)}</span> : null}
             <span className="event-row__model">{event.model || "unknown"}</span>
@@ -245,7 +246,7 @@ function ActivityRunRow({ run, onOpenEvent, onOpenSessionDetail, searchQuery }) 
     <article className={`activity-run${expanded ? " is-expanded" : ""}${run.toolErrors ? " has-errors" : ""}`}>
       <div className="activity-run__main">
         <button type="button" className="activity-run__toggle" onClick={() => setExpanded((current) => !current)}>
-          <span className={`activity-run__source is-${run.sourceType}`}>{run.sourceType === "codex" ? "CX" : "CC"}</span>
+          <span className={`activity-run__source is-${run.sourceType}`}>{platformShortLabel(run.sourceType)}</span>
           <span className="activity-run__copy">
             <span className="activity-run__kicker">
               <strong>{run.userPreview ? "用户回合" : run.hasTools ? "工具运行" : "会话活动"}</strong>
@@ -477,7 +478,7 @@ export function StreamWorkspace({
                   <div key={session.sessionId} className={`session-rail__item${active ? " is-active" : ""}`}>
                     <button type="button" className="session-rail__focus" onClick={() => onSelectSession?.(session.sessionId)}>
                       <span className={`session-rail__mark session-rail__mark--${session.sourceType === "codex" ? "codex" : "claude"}`}>
-                        {session.sourceType === "codex" ? "CX" : "CC"}
+                        {platformShortLabel(session.sourceType)}
                       </span>
                       <span className="session-rail__main">
                         <span className="session-rail__title-row">
@@ -486,7 +487,7 @@ export function StreamWorkspace({
                         </span>
                         <span className="session-rail__preview" title={preview}>{clipText(preview, 72)}</span>
                         <span className="session-rail__metrics">
-                          <span>{formatCompactNumber(session.totalTokens)} Tok</span>
+                          <span>{session.hasTokenData ? `${formatCompactNumber(session.totalTokens)} Tok` : "用量未记录"}</span>
                           <span>{formatNumber(session.count || 0)} 事件</span>
                         </span>
                       </span>

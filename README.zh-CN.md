@@ -1,5 +1,7 @@
 # Session Observer
 
+本 fork 增加 **Grok Build** 和 **Antigravity 桌面版 / CLI** 本地会话的只读支持。详见[支持范围、配置与限制](docs/grok-antigravity.md)。保留原项目的 Codex、Claude Code 能力。
+
 **面向 Codex 与 Claude Code 的本地优先会话观测工作台。** 将散落在本机的 JSONL 会话记录整理成语义事件流、可搜索的会话库、Token 与成本账本，以及运行健康面板，全程不需要上传 prompt、工具输出或源码路径。
 
 [![CI](https://github.com/Ax-For/session-observer/actions/workflows/ci.yml/badge.svg)](https://github.com/Ax-For/session-observer/actions/workflows/ci.yml)

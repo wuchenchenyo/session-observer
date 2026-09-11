@@ -65,7 +65,13 @@ export function formatFullDateTime(value) {
 export function platformLabel(value) {
   if (value === "codex") return "Codex";
   if (value === "claude") return "Claude Code";
-  return "Unknown";
+  if (value === "grok") return "Grok Build";
+  if (value === "antigravity") return "Antigravity";
+  return value || "Unknown";
+}
+
+export function platformShortLabel(value) {
+  return { codex: "CX", claude: "CC", grok: "GX", antigravity: "AG" }[value] || "?";
 }
 
 export function callTypeLabel(value) {
@@ -74,7 +80,7 @@ export function callTypeLabel(value) {
 
 export function shortSessionId(value) {
   const text = String(value || "");
-  return text ? text.slice(0, 8) : "-";
+  return text ? text.split(":").pop().slice(0, 8) : "-";
 }
 
 export function clipText(value, max = 120) {

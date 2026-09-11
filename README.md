@@ -1,5 +1,7 @@
 # Session Observer
 
+This fork adds read-only **Grok Build** and **Antigravity desktop / CLI** transcript sources. See [supported formats, setup, and limitations](docs/grok-antigravity.md). Upstream: [Ax-For/session-observer](https://github.com/Ax-For/session-observer).
+
 **A local-first observability workbench for Codex and Claude Code.** Turn scattered JSONL transcripts into a semantic activity stream, searchable session library, token and cost ledger, and runtime health dashboard - without uploading prompts, tool output, or source paths.
 
 [![CI](https://github.com/Ax-For/session-observer/actions/workflows/ci.yml/badge.svg)](https://github.com/Ax-For/session-observer/actions/workflows/ci.yml)

@@ -1,4 +1,5 @@
 import { lazy, startTransition, Suspense, useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
+import { compareEventOrder } from "./lib/event-order";
 import {
   ActionIcon,
   AppShell,
@@ -374,7 +375,7 @@ export function App() {
     if (dataSource !== "server") {
       const allEvents = localEvents
         .filter((event) => event.sessionId === sessionId)
-        .sort((left, right) => String(left.time).localeCompare(String(right.time)));
+        .sort(compareEventOrder);
       if (requestId !== sessionDetailRequestId.current) return;
       setSessionDetailEvents(allEvents);
       setSessionDetailPage({
@@ -431,7 +432,7 @@ export function App() {
       const hydratedEvents = await hydrateDialogueEvents(nextEvents);
       if (requestId !== sessionDetailRequestId.current) return;
       setSessionDetailEvents((current) => (append ? [...current, ...hydratedEvents] : hydratedEvents)
-        .sort((left, right) => String(left?.time || "").localeCompare(String(right?.time || ""))));
+        .sort(compareEventOrder));
       setSessionDetailPage({
         total,
         offset,
@@ -700,7 +701,7 @@ export function App() {
     } : null,
     streamFilters.platform ? {
       key: "platform",
-      label: `平台 ${streamFilters.platform === "codex" ? "Codex" : "Claude Code"}`,
+      label: `平台 ${({ codex: "Codex", claude: "Claude Code", grok: "Grok Build", antigravity: "Antigravity" })[streamFilters.platform] || streamFilters.platform}`,
       clear: () => setStreamFilters((current) => ({ ...current, platform: "" })),
     } : null,
     streamFilters.start ? {
@@ -980,6 +981,8 @@ export function App() {
                         data={[
                           { value: "codex", label: "Codex" },
                           { value: "claude", label: "Claude Code" },
+                          { value: "grok", label: "Grok Build" },
+                          { value: "antigravity", label: "Antigravity" },
                         ]}
                         value={streamFilters.platform}
                         onChange={(value) => setStreamFilters((current) => ({ ...current, platform: value || "" }))}
@@ -1076,6 +1079,8 @@ export function App() {
                         data={[
                           { value: "codex", label: "Codex" },
                           { value: "claude", label: "Claude Code" },
+                          { value: "grok", label: "Grok Build" },
+                          { value: "antigravity", label: "Antigravity" },
                         ]}
                         value={sessionFilters.platform}
                         onChange={(value) => setSessionFilters((current) => ({ ...current, platform: value || "" }))}

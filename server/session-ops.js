@@ -138,6 +138,7 @@ function deleteClaudeSessionFiles(sessionId) {
  * Rename a session (tries Claude first, then Codex).
  */
 function renameSession(sessionId, newName, scheduleIndexRefresh) {
+  if (/^(grok|antigravity):/.test(sessionId)) return { success: false, error: "This source is read-only" };
   // Try Claude Code first
   const claudeFile = sessionMeta.findClaudeSessionFile(sessionId);
   if (claudeFile) {
@@ -165,6 +166,7 @@ function renameSession(sessionId, newName, scheduleIndexRefresh) {
  * Delete a single session (tries Claude first, then Codex).
  */
 function deleteSession(sessionId, scheduleIndexRefresh) {
+  if (/^(grok|antigravity):/.test(sessionId)) return { success: false, error: "This source is read-only" };
   // Try Claude Code deletion
   const claudeFile = sessionMeta.findClaudeSessionFile(sessionId);
   const claudeTranscripts = sessionMeta.findClaudeTranscriptFiles(sessionId);

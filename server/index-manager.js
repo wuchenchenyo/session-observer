@@ -5,6 +5,7 @@
 const fs = require("fs");
 const crypto = require("crypto");
 const config = require("./config");
+const { providerContext, providerForFile, providerSignature } = require("./provider-context");
 const fsScanner = require("./fs-scanner");
 const sessionMeta = require("./session-meta");
 
@@ -160,8 +161,9 @@ function compactTokenUsage(tokenUsage) {
   if (!tokenUsage || typeof tokenUsage !== "object") return undefined;
   const compact = {};
   for (const key of ["input", "output", "total", "cachedInput", "cacheReadInput", "cacheCreationInput", "reasoningOutput"]) {
+    if (tokenUsage[key] == null || typeof tokenUsage[key] === "boolean" || tokenUsage[key] === "") continue;
     const value = Number(tokenUsage[key]);
-    if (Number.isFinite(value) && value !== 0) compact[key] = value;
+    if (Number.isFinite(value) && value >= 0) compact[key] = value;
   }
   return Object.keys(compact).length ? compact : undefined;
 }
@@ -181,6 +183,10 @@ function makeIndexedEvent(event) {
     : content;
   const indexed = {};
   setStringField(indexed, "time", event.time);
+  setStringField(indexed, "timeSource", event.timeSource);
+  setStringField(indexed, "completedAt", event.completedAt);
+  setStringField(indexed, "status", event.status);
+  if (Number.isFinite(event.durationMs)) indexed.durationMs = event.durationMs;
   setStringField(indexed, "sessionId", event.sessionId);
   setStringField(indexed, "model", event.model);
   setStringField(indexed, "turnId", event.turnId);
@@ -353,6 +359,7 @@ function trimHeapSoon() {
  */
 function parseFileEvents(file, stateSignature, threadMeta, parsers, applyEventSessionMetaCore, options = {}) {
   const stat = fs.statSync(file);
+  stateSignature = `${stateSignature}|${providerSignature(file)}`;
   const { parser } = fsScanner.resolveParserForFile(file, parsers);
   const cutoffMs = Number(options.cutoffMs);
   const cutoffKey = Number.isFinite(cutoffMs) ? cutoffMs : 0;
@@ -365,7 +372,7 @@ function parseFileEvents(file, stateSignature, threadMeta, parsers, applyEventSe
     cached.size === stat.size &&
     cached.mtimeMs === stat.mtimeMs;
   const canAppendIncrementally =
-    cached &&
+    !providerForFile(file) && cached &&
     hasCachedEvents &&
     cached.stateSignature === stateSignature &&
     cached.cutoffKey === cutoffKey &&
@@ -379,7 +386,7 @@ function parseFileEvents(file, stateSignature, threadMeta, parsers, applyEventSe
 
   const context = canAppendIncrementally
     ? { ...cached.context, sourceFile: file }
-    : { model: "unknown", sessionId: "unknown", sourceFile: file, cwd: "", sessionTitle: "" };
+    : { model: "unknown", sessionId: "unknown", sourceFile: file, cwd: "", sessionTitle: "", ...providerContext(file) };
   const parsed = canAppendIncrementally ? cached.events.slice() : [];
   let tailBuffer = canAppendIncrementally ? cached.tailBuffer || "" : "";
   let lineNumber = canAppendIncrementally ? Number(cached.lineCount) || 0 : 0;
@@ -471,7 +478,7 @@ function parseFileEvents(file, stateSignature, threadMeta, parsers, applyEventSe
 function parseFullFileEvents(file, threadMeta, parsers, applyEventSessionMetaCore, options = {}) {
   if (!fs.existsSync(file)) return [];
   const { parser } = fsScanner.resolveParserForFile(file, parsers);
-  const context = { model: "unknown", sessionId: "unknown", sourceFile: file, cwd: "", sessionTitle: "" };
+  const context = { model: "unknown", sessionId: "unknown", sourceFile: file, cwd: "", sessionTitle: "", ...providerContext(file) };
   const events = [];
   const targetLine = Number(options.targetLine) || 0;
 
@@ -530,6 +537,7 @@ function parseEventLineFromIndex(indexedEvent, threadMeta, parsers, applyEventSe
     sourceFile: indexedEvent.sourceFile,
     cwd: indexedEvent.cwd || "",
     sessionTitle: indexedEvent.sessionTitle || "",
+    ...providerContext(indexedEvent.sourceFile),
   };
 
   try {
@@ -683,14 +691,22 @@ function ensureIndexReady(parsers, applyEventSessionMetaCore, dedupeEventsCore, 
  * Start file watchers for automatic index refresh.
  */
 function startIndexWatchers(scheduleIndexRefreshFn) {
+  let needsPolling = false;
+  let pollSignature = "";
+  const guardWatcher = (watcher) => {
+    watcher.on("error", () => { needsPolling = true; watcher.close(); });
+    return watcher;
+  };
   const watchPath = (target) => {
-    if (!fs.existsSync(target)) return null;
+    if (!fs.existsSync(target)) { needsPolling = true; return null; }
     try {
-      return fs.watch(target, { recursive: true }, () => scheduleIndexRefreshFn("watch"));
+      return guardWatcher(fs.watch(target, { recursive: true }, () => scheduleIndexRefreshFn("watch")));
     } catch {
       try {
-        return fs.watch(target, () => scheduleIndexRefreshFn("watch"));
+        needsPolling = true;
+        return guardWatcher(fs.watch(target, () => scheduleIndexRefreshFn("watch")));
       } catch {
+        needsPolling = true;
         return null;
       }
     }
@@ -699,6 +715,7 @@ function startIndexWatchers(scheduleIndexRefreshFn) {
   const sessionWatcher = watchPath(config.SESSIONS_DIR);
   const stateWatcher = watchPath(config.STATE_DB);
   const claudeWatcher = watchPath(config.CLAUDE_PROJECTS_DIR);
+  for (const directory of [config.GROK_SESSIONS_DIR, config.ANTIGRAVITY_BRAIN_DIR, config.ANTIGRAVITY_CLI_BRAIN_DIR]) watchPath(directory);
   if (!sessionWatcher) {
     console.warn(`Session watcher unavailable for ${config.SESSIONS_DIR}, fallback warmup tick enabled.`);
   }
@@ -709,13 +726,12 @@ function startIndexWatchers(scheduleIndexRefreshFn) {
     console.warn(`Claude Code watcher unavailable for ${config.CLAUDE_PROJECTS_DIR}, fallback warmup tick enabled.`);
   }
   setInterval(() => {
-    if (indexState.dirty) {
-      try {
-        // Called from server via bound refreshIndex
-      } catch {
-        // keep retrying
-      }
-    }
+    if (!needsPolling) return;
+    try {
+      const sources = require("./source-files");
+      const next = sources.aggregateRecordsKey(sources.listSourceFileRecords());
+      if (next !== pollSignature) { pollSignature = next; scheduleIndexRefreshFn("poll"); }
+    } catch { /* Retry source discovery on the next bounded polling tick. */ }
   }, config.INDEX_WARMUP_INTERVAL_MS).unref();
 }
 
