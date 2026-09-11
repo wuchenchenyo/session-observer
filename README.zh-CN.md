@@ -14,7 +14,7 @@
 
 [English](README.md)
 
-![Session Observer overview](docs/screenshots/overview.png)
+![Session Observer overview](docs/screenshots/overview.jpg)
 
 Session Observer 面向同时使用多个本地编码 Agent 的开发者，重点解决这些实际问题：
 
@@ -135,15 +135,21 @@ Session Observer 不会把完整会话库长期保留在内存中：
 
 ## 页面截图
 
-截图使用脱敏示例数据，不包含真实 prompt、本机用户名路径、工具输出、凭据或原始 JSONL 内容。
+截图于 2026-09-11 从当前界面实拍，使用本地合成会话与协同记录。提示词、回复、工具输出、模型信息、用量、任务结果和健康快照均为示例，不包含真实对话、凭据或账户额度数据。示例同时展示 Codex、Claude Code、Grok Build 和 Antigravity。
 
 | 运行总览 | 事件流 |
 | --- | --- |
-| ![Overview dashboard](docs/screenshots/overview.png) | ![Event stream](docs/screenshots/stream.png) |
+| ![Overview dashboard](docs/screenshots/overview.jpg) | ![Event stream](docs/screenshots/stream.jpg) |
 
 | Token 账本 | 会话工作台 |
 | --- | --- |
-| ![Token dashboard](docs/screenshots/tokens.png) | ![Session detail](docs/screenshots/sessions.png) |
+| ![Token dashboard](docs/screenshots/tokens.jpg) | ![Session detail](docs/screenshots/sessions.jpg) |
+
+### 协同：派发、返工与独立验收
+
+同一页面展示主子任务树、展开的派发内容、关联会话、验收时间线和执行器健康快照。
+
+![协同任务树与验收时间线](docs/screenshots/collaboration.jpg)
 
 ## 数据来源
 

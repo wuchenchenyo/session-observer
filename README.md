@@ -14,7 +14,7 @@ It also adds a **collaboration dashboard and explicit local recorder** for paren
 
 [中文文档](README.zh-CN.md)
 
-![Session Observer overview](docs/screenshots/overview.png)
+![Session Observer overview](docs/screenshots/overview.jpg)
 
 Session Observer is built for developers who use multiple local coding agents and need to answer practical questions quickly:
 
@@ -141,15 +141,21 @@ This keeps normal navigation responsive even when individual JSONL files are hun
 
 ## Screenshots
 
-Screenshots use sanitized example data. They do not contain real prompts, local user paths, tool output, credentials, or source JSONL records.
+Captured from the current interface on 2026-09-11 using synthetic local sessions and collaboration records. Prompts, replies, tool output, model metadata, usage values, task outcomes, and health snapshots are illustrative; no real conversations, credentials, or account quota data are included. The examples show Codex, Claude Code, Grok Build, and Antigravity together.
 
 | Overview | Event stream |
 | --- | --- |
-| ![Overview dashboard](docs/screenshots/overview.png) | ![Event stream](docs/screenshots/stream.png) |
+| ![Overview dashboard](docs/screenshots/overview.jpg) | ![Event stream](docs/screenshots/stream.jpg) |
 
 | Token ledger | Session workbench |
 | --- | --- |
-| ![Token dashboard](docs/screenshots/tokens.png) | ![Session detail](docs/screenshots/sessions.png) |
+| ![Token dashboard](docs/screenshots/tokens.jpg) | ![Session detail](docs/screenshots/sessions.jpg) |
+
+### Collaboration: dispatch, rework, and independent acceptance
+
+The task tree, expanded dispatch details, linked session, review timeline, and executor health snapshots appear in one view.
+
+![Collaboration task tree and review timeline](docs/screenshots/collaboration.jpg)
 
 ## Data sources
 
