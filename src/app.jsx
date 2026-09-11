@@ -70,6 +70,7 @@ const NAV_ITEMS = [
   { value: "tokens", label: "Token", detail: "用量与成本", shortcut: "2", icon: IconChartBar },
   { value: "stream", label: "事件流", detail: "检索与追踪", shortcut: "3", icon: IconClock },
   { value: "sessions", label: "会话", detail: "归档与详情", shortcut: "4", icon: IconMessageCircle },
+  { value: "collaboration", label: "协同", detail: "分派与验收", shortcut: "5", icon: IconStack2 },
 ];
 
 const VIEW_META = {
@@ -77,7 +78,12 @@ const VIEW_META = {
   tokens: { eyebrow: "02 / LEDGER", title: "Token 账本", description: "用量构成、趋势与成本归因" },
   stream: { eyebrow: "03 / LIVE", title: "事件流", description: "最近事件、搜索与会话上下文" },
   sessions: { eyebrow: "04 / LIBRARY", title: "会话管理", description: "检索、分组与完整对话" },
+  collaboration: { eyebrow: "05 / COLLABORATION", title: "协同任务", description: "主子任务、执行记录与独立验收" },
 };
+
+const CollaborationWorkspace = lazy(() => import("./components/collaboration-workspace").then((module) => ({
+  default: module.CollaborationWorkspace,
+})));
 
 const StreamWorkspace = lazy(() => import("./components/stream-workspace").then((module) => ({
   default: module.StreamWorkspace,
@@ -176,6 +182,7 @@ export function App() {
   ).current;
   const searchRef = useRef(null);
   const [tab, setTab] = useState(initialUrlState.tab);
+  const [collaborationRefresh, setCollaborationRefresh] = useState(0);
   const [themeMode, setThemeMode] = useLocalStorage({
     key: "observer-theme-mode",
     defaultValue: "dark",
@@ -454,6 +461,10 @@ export function App() {
   }
 
   async function refreshActiveView() {
+    if (tab === "collaboration") {
+      setCollaborationRefresh((value) => value + 1);
+      return;
+    }
     if (tab === "overview" || tab === "tokens") {
       await loadObservability();
       return;
@@ -473,7 +484,7 @@ export function App() {
   }
 
   const sourceChangeStream = useSourceChangeStream({
-    enabled: dataSource === "server",
+    enabled: dataSource === "server" && tab !== "collaboration",
     onChange: refreshActiveView,
   });
   const currentViewLoading = tab === "stream"
@@ -482,6 +493,7 @@ export function App() {
       ? loadingSessions || sessionDetailLoading
       : loadingObservability;
   const refreshStatus = useMemo(() => {
+    if (tab === "collaboration") return { label: "定时刷新", color: "teal", tone: "live", title: "协同任务页每 10 秒读取本地记录，也可手动刷新。" };
     const refreshedAt = sourceChangeStream.lastRefreshAt
       ? new Date(sourceChangeStream.lastRefreshAt).toLocaleTimeString("zh-CN", { hour12: false })
       : "";
@@ -517,7 +529,7 @@ export function App() {
       tone: "pending",
       title: "实时连接暂不可用；系统会自动重连，并每 30 秒低频校验一次。",
     };
-  }, [currentViewLoading, sourceChangeStream.connected, sourceChangeStream.lastRefreshAt, sourceChangeStream.pending]);
+  }, [tab, currentViewLoading, sourceChangeStream.connected, sourceChangeStream.lastRefreshAt, sourceChangeStream.pending]);
 
   useEffect(() => {
     if (!pendingWorkspaceKey || tab !== "sessions" || sessionFilters.groupBy !== "cwd") return undefined;
@@ -882,7 +894,11 @@ export function App() {
 
           <AppShell.Main className="workspace-canvas" data-testid="workspace-canvas" data-workbench-view={tab}>
             <Stack gap="md" className="app-main">
-              {tab === "overview" || tab === "tokens" ? (
+              {tab === "collaboration" ? (
+                <Suspense fallback={<WorkspaceFallback label="正在加载协同任务…" />}>
+                  <CollaborationWorkspace onOpenSessionDetail={openSessionDetail} refreshToken={collaborationRefresh} />
+                </Suspense>
+              ) : tab === "overview" || tab === "tokens" ? (
                 <Suspense fallback={<WorkspaceFallback label="正在加载可观测视图…" />}>
                   <ObservabilityWorkspace
                     payload={observabilityPayload}

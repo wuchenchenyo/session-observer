@@ -14,6 +14,7 @@ const DIST_ROOT = path.join(ROOT, "dist");
 const DIST_INDEX = path.join(DIST_ROOT, "index.html");
 const RUNTIME_DIR = process.env.OBSERVER_RUNTIME_DIR || path.join(ROOT, ".runtime");
 const DATA_DIR = process.env.OBSERVER_DATA_DIR || path.join(os.homedir(), ".session-observer");
+const COLLABORATION_DIR = process.env.OBSERVER_COLLABORATION_DIR || path.join(DATA_DIR, "collaboration");
 const SUMMARY_CACHE_FILE = process.env.OBSERVER_SUMMARY_CACHE_FILE || path.join(RUNTIME_DIR, "summary-cache.json");
 const CODEX_USAGE_CACHE_FILE = process.env.OBSERVER_CODEX_USAGE_CACHE_FILE
   || path.join(RUNTIME_DIR, "codex-usage.json");
@@ -152,6 +153,7 @@ module.exports = {
   ROOT,
   RUNTIME_DIR,
   DATA_DIR,
+  COLLABORATION_DIR,
   SUMMARY_CACHE_FILE,
   CODEX_USAGE_CACHE_FILE,
   SESSION_TITLE_OVERRIDES_FILE,

@@ -19,7 +19,7 @@ export const DEFAULT_SESSION_FILTERS = {
 };
 
 export const DEFAULT_TOKEN_THRESHOLD = "20000";
-export const APP_TABS = ["overview", "tokens", "stream", "sessions"];
+export const APP_TABS = ["overview", "tokens", "stream", "sessions", "collaboration"];
 
 function cleanSearch(search = "") {
   return String(search).replace(/^\?/, "");

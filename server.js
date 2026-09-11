@@ -14,6 +14,7 @@ const { createSourceChangeBus } = require("./server/source-change-bus");
 const { createSummaryStore } = require("./server/summary-store");
 const { createCodexUsageService } = require("./server/codex-usage");
 const { createSessionAnnotationStore } = require("./server/session-annotations");
+const { createCollaborationStore } = require("./server/collaboration-store");
 const { createDialogueSearchIndex } = require("./server/dialogue-search-index");
 const { parseGenericLineToEvent } = require("./shared/generic-event-parser");
 const { parseGrokLineToEvent } = require("./shared/grok-event-parser");
@@ -61,6 +62,7 @@ const codexUsageService = createCodexUsageService({
 const annotationStore = createSessionAnnotationStore({
   file: config.SESSION_ANNOTATIONS_FILE,
 });
+const collaborationStore = createCollaborationStore({ directory: config.COLLABORATION_DIR });
 const dialogueSearchIndex = createDialogueSearchIndex({
   enabled: config.DIALOGUE_SEARCH_MODE === "sqlite",
   file: config.DIALOGUE_SEARCH_DB,
@@ -136,6 +138,14 @@ const server = http.createServer((req, res) => {
   const u = new URL(req.url, `http://${req.headers.host}`);
 
   try {
+    if (u.pathname === "/api/collaboration" || u.pathname.startsWith("/api/collaboration/")) {
+      if (req.method !== "GET") return sendJson(req, res, 405, { error: "Collaboration API is read-only; use the local recorder." });
+      if (u.pathname === "/api/collaboration") return sendJson(req, res, 200, collaborationStore.snapshot());
+      const match = u.pathname.match(/^\/api\/collaboration\/tasks\/([^/]+)$/);
+      if (!match) return sendJson(req, res, 404, { error: "Not found" });
+      const task = collaborationStore.detail(decodeURIComponent(match[1]));
+      return sendJson(req, res, task ? 200 : 404, task ? { task } : { error: "Task not found" });
+    }
     if (u.pathname === "/api/index-window" && req.method === "GET") {
       return sendJson(req, res, 200, {
         generatedAt: new Date().toISOString(),

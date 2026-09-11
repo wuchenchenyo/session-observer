@@ -2,6 +2,8 @@
 
 This fork adds read-only **Grok Build** and **Antigravity desktop / CLI** transcript sources. See [supported formats, setup, and limitations](docs/grok-antigravity.md). Upstream: [Ax-For/session-observer](https://github.com/Ax-For/session-observer).
 
+It also adds a **collaboration dashboard and explicit local recorder** for parent/child tasks, dispatched briefs, returns, rework, independent acceptance, executor health snapshots, and concurrent write claims. See the [workflow and CLI guide](docs/collaboration.md). Only registered calls are tracked; the recorder is not a permission sandbox or an automatic interceptor of agent apps.
+
 **A local-first observability workbench for Codex and Claude Code.** Turn scattered JSONL transcripts into a semantic activity stream, searchable session library, token and cost ledger, and runtime health dashboard - without uploading prompts, tool output, or source paths.
 
 [![CI](https://github.com/Ax-For/session-observer/actions/workflows/ci.yml/badge.svg)](https://github.com/Ax-For/session-observer/actions/workflows/ci.yml)
@@ -42,6 +44,7 @@ The default UI is [http://127.0.0.1:8787](http://127.0.0.1:8787). No account or 
 | **Token ledger** | Uncached input, cache hits, cache creation, output, reasoning output, estimated cost, efficiency ratios, forecasts, trends, model attribution, workspace attribution, and high-cost sessions |
 | **Event stream** | Semantic activity grouped by user turn, dedicated Q&A/tool/usage/raw views, explicit search, filters, highlighted dialogue matches, live follow/pause, and direct jumps into session detail |
 | **Session library** | Active sessions, workspace grouping, directory tree, stable full-session totals, start and latest timestamps, collapsible conversations, activity, usage, files/tools, commands, errors, compactions, and raw diagnostics |
+| **Collaboration** | Explicit task hierarchy, dispatch/return/review timeline, linked sessions, health snapshots, and local concurrency/write-claim checks |
 
 The session workbench also supports execution replay, deterministic two-session comparison, and local outcome annotations. Comparisons use compact summaries instead of loading complete transcripts.
 
